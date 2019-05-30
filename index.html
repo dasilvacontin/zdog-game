@@ -1,0 +1,188 @@
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+<script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
+<script src="keyboard.js"></script>
+<canvas id="myCanvas" class="zdog-canvas" width="240" height="240"></canvas>
+<script>
+  const canvas = document.getElementById('myCanvas')
+  canvas.width = canvas.style.width = window.innerWidth
+  canvas.height = canvas.style.height = window.innerHeight
+  canvas.style.background = '#f8ffa3'
+  
+  // create illo
+  let illo = new Zdog.Illustration({
+    // set canvas with selector
+    element: '.zdog-canvas',
+    dragRotate: true,
+    rotate: {
+      x: -Zdog.TAU/16,
+      y: -Zdog.TAU/8
+    }
+  })
+  
+  for (let x = -1; x <= 1; ++x) {
+    for (let z = -1; z <= 1; ++z) {
+      for (let i = 1; i <= 4; ++i) {
+        if (i === 1 || i === 2) continue
+        // add circle
+        new Zdog.Ellipse({
+          addTo: illo,
+          diameter: 80,
+          quarters: 1,
+          translate: {
+            x: x * 200,
+            y: 0,
+            z: z * 200
+          },
+          rotate: { z: Zdog.TAU/4 * i },
+          stroke: 20,
+          color: '#ffbb14',
+        })
+        const shadow = new Zdog.Group({
+          addTo: illo,
+          translate: {
+            x: x * 200,
+            y: 0,
+            z: z * 200
+          },
+        })
+        new Zdog.Shape({
+          addTo: shadow,
+          stroke: 20,
+          path: [
+            { x: - 40, y: 0, z: 0 },
+            { x: + 40, y: 0, z: 0 },
+          ],
+          color: 'rgba(0,0,0,0.05)'
+        })
+        new Zdog.Shape({
+          addTo: shadow,
+          path: [
+            { x: - 40, y: +5000, z: 0 },
+            { x:  + 40, y: +5000, z: 0 },
+          ],
+          visible: false
+        })
+      }
+    }
+  }
+
+  const sonic = new Zdog.Shape({
+    addTo: illo,
+    stroke: 40,
+    translate: {
+      x: 0,
+      y: -8,
+      z: 0
+    },
+    color: '#0061ff',
+    // color: '#a3caff',
+  })
+
+  // eyes
+  new Zdog.Shape({
+    addTo: sonic,
+    stroke: 5,
+    path: [
+      { x: -7, y: -8, z: 15 },
+      { x: -7, y: 4, z: 15 },
+    ],
+    color: 'rgba(0,0,0,0.6)'
+  })
+  new Zdog.Shape({
+    addTo: sonic,
+    stroke: 5,
+    path: [
+      { x: 7, y: -8, z: 15 },
+      { x: 7, y: 4, z: 15 },
+    ],
+    rotate: {
+      y: 0
+    },
+    color: 'rgba(0,0,0,0.6)'
+  })
+
+  // some random patches of grass
+  for (let i = 0; i < 13; ++i) {
+    const grassPatch = new Zdog.Group({
+      addTo: illo,
+      translate: {
+        x: Math.random() * 600 - 300,
+        y: 0,
+        z: Math.random() * 600 - 300,
+      }
+    })
+    new Zdog.Shape({
+      addTo: grassPatch,
+      visible: false,
+      translate: {
+        x: 0,
+        y: 200,
+        z: 0
+      }
+    })
+    for (let k = 0; k < Math.random() * 7 + 2; ++k) {
+      const xOffset = Math.random() * 10 - 5
+      const zOffset = Math.random() * 10 - 5
+
+      new Zdog.Shape({
+        addTo: grassPatch,
+        stroke: 2,
+        path: [
+          {
+            x: xOffset,
+            y: 0,
+            z: zOffset,
+          },
+          {
+            x: xOffset * (Math.random()*1 + 1),
+            y: -5,
+            z: zOffset * (Math.random()*1 + 1)
+          },
+        ],
+        color: 'rgba(147,192,47,0.8)'
+      })
+    }
+  }
+
+  const FACTOR = 2
+  const SPEED = 1 * FACTOR
+  const ROTATE_SPEED = 0.03 * FACTOR
+
+  function animate () {
+    illo.updateRenderGraph()
+    if (isKeyDown(keyCodes.RIGHT_ARROW)) {
+      sonic.translate.x += SPEED
+      sonic.rotate.z += ROTATE_SPEED
+      // sonic.rotate.y = 3 * Zdog.TAU / 4
+    }
+    if (isKeyDown(keyCodes.LEFT_ARROW)) {
+      sonic.translate.x -= SPEED
+      sonic.rotate.z -= ROTATE_SPEED
+      // sonic.rotate.y = 1 * Zdog.TAU / 4
+    }
+    if (isKeyDown(keyCodes.UP_ARROW)) {
+      sonic.translate.z -= SPEED
+      sonic.rotate.x += ROTATE_SPEED
+      // sonic.rotate.y = 0 * Zdog.TAU / 4
+    }
+    if (isKeyDown(keyCodes.DOWN_ARROW)) {
+      sonic.translate.z += SPEED
+      // sonic.rotate.y = Zdog.TAU / 4
+      sonic.rotate.x -= ROTATE_SPEED
+      // sonic.rotate.y = 4 * Zdog.TAU / 4
+    }
+
+    // const angle = (Date.now()/4000) % (2 * Math.PI)
+    // illo.rotate.x = Math.sin(angle) * Zdog.TAU / 32 - 1.5 * Zdog.TAU / 16
+    // illo.rotate.y = Math.cos(angle) * Zdog.TAU / 32
+
+    requestAnimationFrame(animate)
+  }
+  animate()
+  
+</script>
