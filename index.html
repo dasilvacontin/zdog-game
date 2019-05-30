@@ -26,6 +26,8 @@
   
   for (let x = -1; x <= 1; ++x) {
     for (let z = -1; z <= 1; ++z) {
+
+      // render door as two quarters
       for (let i = 1; i <= 4; ++i) {
         if (i === 1 || i === 2) continue
         // add circle
@@ -42,32 +44,36 @@
           stroke: 20,
           color: '#ffbb14',
         })
-        const shadow = new Zdog.Group({
-          addTo: illo,
-          translate: {
-            x: x * 200,
-            y: 0,
-            z: z * 200
-          },
-        })
-        new Zdog.Shape({
-          addTo: shadow,
-          stroke: 20,
-          path: [
-            { x: - 40, y: 0, z: 0 },
-            { x: + 40, y: 0, z: 0 },
-          ],
-          color: 'rgba(0,0,0,0.05)'
-        })
-        new Zdog.Shape({
-          addTo: shadow,
-          path: [
-            { x: - 40, y: +5000, z: 0 },
-            { x:  + 40, y: +5000, z: 0 },
-          ],
-          visible: false
-        })
       }
+
+      // door shadow
+      const shadow = new Zdog.Group({
+        addTo: illo,
+        translate: {
+          x: x * 200,
+          y: 0,
+          z: z * 200
+        },
+      })
+      new Zdog.Shape({
+        addTo: shadow,
+        stroke: 20,
+        path: [
+          { x: - 40, y: 0, z: 0 },
+          { x: + 40, y: 0, z: 0 },
+        ],
+        color: 'rgba(0,0,0,0.05)'
+      })
+      // fix z fighting with unvisible far down object inside group
+      new Zdog.Shape({
+        addTo: shadow,
+        path: [
+          { x: - 40, y: +5000, z: 0 },
+          { x:  + 40, y: +5000, z: 0 },
+        ],
+        visible: false
+      })
+
     }
   }
 
@@ -79,14 +85,14 @@
       y: -8,
       z: 0
     },
-    color: '#0061ff',
+    color: 'rgba(47,126,235, 1)',
     // color: '#a3caff',
   })
 
   // eyes
   new Zdog.Shape({
     addTo: sonic,
-    stroke: 5,
+    stroke: 4,
     path: [
       { x: -7, y: -8, z: 15 },
       { x: -7, y: 4, z: 15 },
@@ -95,7 +101,7 @@
   })
   new Zdog.Shape({
     addTo: sonic,
-    stroke: 5,
+    stroke: 4,
     path: [
       { x: 7, y: -8, z: 15 },
       { x: 7, y: 4, z: 15 },
