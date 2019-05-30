@@ -24,6 +24,10 @@
     }
   })
   
+  // render 9 doors. instead of rendering a single semicircle for
+  // each, they are made up of two quartercircles, so that one part
+  // can be rendered over the character, and the other part behind
+  // them
   for (let x = -1; x <= 1; ++x) {
     for (let z = -1; z <= 1; ++z) {
 
@@ -59,12 +63,13 @@
         addTo: shadow,
         stroke: 20,
         path: [
-          { x: - 40, y: 0, z: 0 },
+          { x: - 80, y: 0, z: 0 },
           { x: + 40, y: 0, z: 0 },
         ],
         color: 'rgba(0,0,0,0.05)'
       })
-      // fix z fighting with unvisible far down object inside group
+      // fix z fighting with invisible far down object inside group
+      // object's z is the average of the children
       new Zdog.Shape({
         addTo: shadow,
         path: [
@@ -86,11 +91,24 @@
       z: 0
     },
     color: 'rgba(47,126,235, 1)',
-    // color: '#a3caff',
   })
+
+  // const sonicBody = new Zdog.Group({
+  //   addTo: sonic
+  // })
+  
+  // blue ball
+  // new Zdog.Shape({
+  //   // addTo: sonicBody,
+  //   addTo: sonic,
+  //   stroke: 40,
+  //   color: 'rgba(47,126,235, 1)',
+  //   // color: '#a3caff',
+  // })
 
   // eyes
   new Zdog.Shape({
+    // addTo: sonicBody,
     addTo: sonic,
     stroke: 4,
     path: [
@@ -100,15 +118,13 @@
     color: 'rgba(0,0,0,0.6)'
   })
   new Zdog.Shape({
+    // addTo: sonicBody,
     addTo: sonic,
     stroke: 4,
     path: [
       { x: 7, y: -8, z: 15 },
       { x: 7, y: 4, z: 15 },
     ],
-    rotate: {
-      y: 0
-    },
     color: 'rgba(0,0,0,0.6)'
   })
 
@@ -131,6 +147,8 @@
         z: 0
       }
     })
+
+    // for each grass patch, spawn a random amount of green lines
     for (let k = 0; k < Math.random() * 7 + 2; ++k) {
       const xOffset = Math.random() * 10 - 5
       const zOffset = Math.random() * 10 - 5
@@ -163,26 +181,26 @@
     illo.updateRenderGraph()
     if (isKeyDown(keyCodes.RIGHT_ARROW)) {
       sonic.translate.x += SPEED
+      // sonicBody.rotate.z += ROTATE_SPEED
       sonic.rotate.z += ROTATE_SPEED
-      // sonic.rotate.y = 3 * Zdog.TAU / 4
     }
     if (isKeyDown(keyCodes.LEFT_ARROW)) {
       sonic.translate.x -= SPEED
+      // sonicBody.rotate.z -= ROTATE_SPEED
       sonic.rotate.z -= ROTATE_SPEED
-      // sonic.rotate.y = 1 * Zdog.TAU / 4
     }
     if (isKeyDown(keyCodes.UP_ARROW)) {
       sonic.translate.z -= SPEED
+      // sonicBody.rotate.x += ROTATE_SPEED
       sonic.rotate.x += ROTATE_SPEED
-      // sonic.rotate.y = 0 * Zdog.TAU / 4
     }
     if (isKeyDown(keyCodes.DOWN_ARROW)) {
       sonic.translate.z += SPEED
-      // sonic.rotate.y = Zdog.TAU / 4
+      // sonicBody.rotate.x -= ROTATE_SPEED
       sonic.rotate.x -= ROTATE_SPEED
-      // sonic.rotate.y = 4 * Zdog.TAU / 4
     }
 
+    // autocam
     // const angle = (Date.now()/4000) % (2 * Math.PI)
     // illo.rotate.x = Math.sin(angle) * Zdog.TAU / 32 - 1.5 * Zdog.TAU / 16
     // illo.rotate.y = Math.cos(angle) * Zdog.TAU / 32
