@@ -1,6 +1,6 @@
 'use strict'
 var keys = []
-var debug = true
+var debug = false
 
 var keyCodes = {
   SPACE_BAR: 32,

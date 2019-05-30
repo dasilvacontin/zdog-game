@@ -6,13 +6,19 @@
 </style>
 <script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
 <script src="keyboard.js"></script>
+<script src="http://darsa.in/fpsmeter/js/fpsmeter.min.js"></script>
 <canvas id="myCanvas" class="zdog-canvas" width="240" height="240"></canvas>
 <script>
+  const meter = new FPSMeter()
+
   const canvas = document.getElementById('myCanvas')
   canvas.width = canvas.style.width = window.innerWidth
   canvas.height = canvas.style.height = window.innerHeight
   canvas.style.background = '#f8ffa3'
   
+  const ringFx = new Audio()
+  ringFx.src = 'snd/ring.wav'
+
   // create illo
   let illo = new Zdog.Illustration({
     // set canvas with selector
@@ -59,14 +65,16 @@
           z: z * 200
         },
       })
-      new Zdog.Shape({
+      new Zdog.RoundedRect({
         addTo: shadow,
-        stroke: 20,
-        path: [
-          { x: - 80, y: 0, z: 0 },
-          { x: + 40, y: 0, z: 0 },
-        ],
-        color: 'rgba(0,0,0,0.05)'
+        width: 130,
+        height: 30,
+        cornerRadius: 80,
+        stroke: 0,
+        fill: true,
+        rotate: { x: Zdog.TAU / 4},
+        translate: { x: -15, y: 10 },
+        color: '#EBF29B'
       })
       // fix z fighting with invisible far down object inside group
       // object's z is the average of the children
@@ -90,7 +98,7 @@
       y: -8,
       z: 0
     },
-    color: 'rgba(47,126,235, 1)',
+    color: 'rgba(47,126,235, 1)'
   })
 
   // const sonicBody = new Zdog.Group({
@@ -98,18 +106,17 @@
   // })
   
   // blue ball
-  // new Zdog.Shape({
-  //   // addTo: sonicBody,
-  //   addTo: sonic,
-  //   stroke: 40,
-  //   color: 'rgba(47,126,235, 1)',
-  //   // color: '#a3caff',
-  // })
+  const sonicBody = new Zdog.Shape({
+    addTo: sonic,
+    stroke: 40,
+    color: 'rgba(47,126,235, 1)',
+    // color: '#a3caff',
+  })
 
   // eyes
   new Zdog.Shape({
-    // addTo: sonicBody,
-    addTo: sonic,
+    addTo: sonicBody,
+    // addTo: sonic,
     stroke: 4,
     path: [
       { x: -7, y: -8, z: 15 },
@@ -118,8 +125,8 @@
     color: 'rgba(0,0,0,0.6)'
   })
   new Zdog.Shape({
-    // addTo: sonicBody,
-    addTo: sonic,
+    addTo: sonicBody,
+    // addTo: sonic,
     stroke: 4,
     path: [
       { x: 7, y: -8, z: 15 },
@@ -128,16 +135,40 @@
     color: 'rgba(0,0,0,0.6)'
   })
 
+  // shadow of the hedgehog
+  const shedow = new Zdog.Group({
+    addTo: sonic
+  })
+  new Zdog.Ellipse({
+    addTo: shedow,
+    diameter: 40,
+    stroke: 0,
+    rotate: { x: Zdog.TAU/4 },
+    translate: { x: -10, y: 20 },
+    fill: true,
+    color: '#EBF29B',
+  })
+  // for fake z
+  new Zdog.Ellipse({
+    addTo: shedow,
+    visible: false,
+    translate: { x: -10, y: 5000 }
+  })
+
   // some random patches of grass
-  for (let i = 0; i < 13; ++i) {
+  const grassPatches = []
+  for (let i = 0; i < 30; ++i) {
     const grassPatch = new Zdog.Group({
       addTo: illo,
       translate: {
         x: Math.random() * 600 - 300,
-        y: 0,
+        y: 10,
         z: Math.random() * 600 - 300,
       }
     })
+    grassPatch.timer = Math.random() * 1000
+    grassPatches.push(grassPatch)
+    grassPatch.individuals = []
     new Zdog.Shape({
       addTo: grassPatch,
       visible: false,
@@ -150,60 +181,153 @@
 
     // for each grass patch, spawn a random amount of green lines
     for (let k = 0; k < Math.random() * 7 + 2; ++k) {
-      const xOffset = Math.random() * 10 - 5
-      const zOffset = Math.random() * 10 - 5
+      const xOffset = Math.random() * 5 - 2.5
+      const zOffset = Math.random() * 5 - 2.5
 
-      new Zdog.Shape({
-        addTo: grassPatch,
-        stroke: 2,
-        path: [
-          {
-            x: xOffset,
-            y: 0,
-            z: zOffset,
-          },
-          {
-            x: xOffset * (Math.random()*1 + 1),
-            y: -5,
-            z: zOffset * (Math.random()*1 + 1)
-          },
-        ],
-        color: 'rgba(147,192,47,0.8)'
-      })
+      grassPatch.individuals.push(
+        new Zdog.Shape({
+          addTo: grassPatch,
+          stroke: 2,
+          path: [
+            {
+              x: 0,
+              y: 0,
+              z: 0,
+            },
+            {
+              x: xOffset * (Math.random()*1 + 1) - xOffset,
+              y: -5 -5*Math.random(),
+              z: zOffset * (Math.random()*1 + 1) - zOffset
+            },
+          ],
+          translate: { x: xOffset, y: 0, z: zOffset },
+          color: 'rgba(147,192,47,0.8)'
+        })
+      )
     }
   }
+
+  const rings = []
+  function spawnRing () {
+    const x = Math.random() * 600 - 300
+    const z = Math.random() * 600 - 300
+
+    const ring = new Zdog.Ellipse({
+      addTo: illo,
+      diameter: 20,
+      translate: {
+        x: x,
+        y: -20,
+        z: z,
+      },
+      stroke: 4,
+      color: '#ffbb14',
+    })
+    rings.push(ring)
+
+    // ring shadow
+    const ringShadowGroup = new Zdog.Group({
+      addTo: illo,
+      translate: { x: x, y: 10, z: z }
+    })
+    const ringShadow = new Zdog.Ellipse({
+      addTo: ringShadowGroup,
+      width: 22,
+      height: 22,
+      cornerRadius: 28,
+      stroke: 4,
+      rotate: { x: Zdog.TAU / 4},
+      translate: { x: -25 },
+      color: '#EBF29B'
+    })
+    new Zdog.Ellipse({
+      addTo: ringShadowGroup,
+      translate: { y: 10000 },
+      visible: false
+    })
+    ring.shadow = ringShadowGroup
+
+    console.log('new ring!')
+  }
+
+  for (let k = 0; k < 5; k++) spawnRing()
+
 
   const FACTOR = 2
   const SPEED = 1 * FACTOR
   const ROTATE_SPEED = 0.03 * FACTOR
 
   function animate () {
-    illo.updateRenderGraph()
     if (isKeyDown(keyCodes.RIGHT_ARROW)) {
       sonic.translate.x += SPEED
-      // sonicBody.rotate.z += ROTATE_SPEED
-      sonic.rotate.z += ROTATE_SPEED
+      sonicBody.rotate.z += ROTATE_SPEED
+      // sonic.rotate.z += ROTATE_SPEED
     }
     if (isKeyDown(keyCodes.LEFT_ARROW)) {
       sonic.translate.x -= SPEED
-      // sonicBody.rotate.z -= ROTATE_SPEED
-      sonic.rotate.z -= ROTATE_SPEED
+      sonicBody.rotate.z -= ROTATE_SPEED
+      // sonic.rotate.z -= ROTATE_SPEED
     }
     if (isKeyDown(keyCodes.UP_ARROW)) {
       sonic.translate.z -= SPEED
-      // sonicBody.rotate.x += ROTATE_SPEED
-      sonic.rotate.x += ROTATE_SPEED
+      sonicBody.rotate.x += ROTATE_SPEED
+      // sonic.rotate.x += ROTATE_SPEED
     }
     if (isKeyDown(keyCodes.DOWN_ARROW)) {
       sonic.translate.z += SPEED
-      // sonicBody.rotate.x -= ROTATE_SPEED
-      sonic.rotate.x -= ROTATE_SPEED
+      sonicBody.rotate.x -= ROTATE_SPEED
+      // sonic.rotate.x -= ROTATE_SPEED
     }
+
+    rings.forEach(ring => {
+      ring.rotate.y += 0.05
+      ring.shadow.scale.z = Math.abs(Math.sin((ring.rotate.y % Zdog.TAU)/Zdog.TAU * 2 * Math.PI))
+    })
+
+    grassPatches.forEach(grassPatch => {
+      grassPatch.timer += Math.random() / 50
+      const angle = grassPatch.timer % Math.PI*2
+      grassPatch.individuals.forEach(individual => {
+        individual.rotate.z = Math.cos(angle) * Zdog.TAU / 16
+      })
+    })
 
     // autocam
     // const angle = (Date.now()/4000) % (2 * Math.PI)
     // illo.rotate.x = Math.sin(angle) * Zdog.TAU / 32 - 1.5 * Zdog.TAU / 16
     // illo.rotate.y = Math.cos(angle) * Zdog.TAU / 32
+
+    for (let i = rings.length - 1; i >= 0; --i) {
+      const ring = rings[i]
+      const dist = Math.abs(sonic.translate.x - ring.translate.x) + Math.abs(sonic.translate.z - ring.translate.z)
+      if (dist < 40) {
+        // collect!
+        ringFx.currentTime = 0;
+        ringFx.play()
+        if (rings.length > 1) {
+          rings.splice(i, 1)
+          ring.remove()
+          ring.visible = false
+          ring.shadow.remove()
+          ring.shadow.visible = false
+        } else {
+          const x = Math.random() * 600 - 300
+          const z = Math.random() * 600 - 300
+          ring.translate.x = x
+          ring.translate.z = z
+          ring.shadow.translate.x = x
+          ring.shadow.translate.z = z
+
+        }
+      }
+
+    }
+
+    if (rings.length === 0) spawnRing()
+
+    meter.tickStart()
+    illo.updateRenderGraph()
+    meter.tick()
 
     requestAnimationFrame(animate)
   }
