@@ -1,31 +1,43 @@
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-  }
-  #signature {
-    width: 100%;
-    text-align: center;
-    position: fixed;
-    bottom: 25px;
-    font-family: Helvetica;
-    color: rgba(147,192,47,0.9);
-    /* color: #ffbb14; */
-  }
-  a {
-    color: rgba(147,192,47,0.9);
-    font-weight: bold;
-  }
+<html>
+<head>
+  <title>Zdog game test by @dasilvacontin</title>
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@dasilvacontin">
+  <meta name="twitter:author" content="@dasilvacontin">
+  <meta name="twitter:title" content="Zdog game test">
+  <meta name="twitter:description" content="Testing the use of Zdog for making a web game.">
+  <meta name="twitter:image" content="screenshot.png">
 
-  /** for centering canvas **/
-  body { display: flex } 
-  canvas { margin: auto; cursor: move }
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    #signature {
+      width: 100%;
+      text-align: center;
+      position: fixed;
+      bottom: 25px;
+      font-family: Helvetica;
+      color: rgba(147,192,47,0.9);
+      /* color: #ffbb14; */
+    }
+    a {
+      color: rgba(147,192,47,0.9);
+      font-weight: bold;
+    }
 
-  body, canvas {
-    background: #f8ffa3;
-  }
-</style>
+    /** for centering canvas **/
+    body { display: flex } 
+    canvas { margin: auto; cursor: move }
 
+    body, canvas {
+      background: #f8ffa3;
+    }
+  </style>
+</head>
+
+<body>
 <script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
 <script src="keyboard.js"></script>
 <script src="fpsmeter.min.js"></script>
@@ -508,3 +520,5 @@
   console.log(`We have ${shapeCounter} shapes!`)
   
 </script>
+</body>
+</html>
