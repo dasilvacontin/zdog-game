@@ -60,6 +60,7 @@
   // array with positions that will collide with our character
   const gatePillars = []
   
+  const GATE_COLOR = '#E66767'
   // render 9 doors. instead of rendering a single semicircle for
   // each, they are made up of two quartercircles, so that one part
   // can be rendered over the character, and the other part behind
@@ -68,10 +69,11 @@
     for (let z = -1; z <= 1; ++z) {
 
       // render door as two quarters
+      const gate = []
       for (let i = 1; i <= 4; ++i) {
         if (i === 1 || i === 2) continue
         // add circle
-        new Zdog.Ellipse({
+        gate.push(new Zdog.Ellipse({
           addTo: illo,
           diameter: 80,
           quarters: 1,
@@ -95,19 +97,21 @@
           // color: '#D78453',
           // color: '#D76B6B'
           color: '#E66767'
-        })
-        shapeCounter++
+        }))
       }
+      shapeCounter++
 
       gatePillars.push({
         x: x * 200 - 40,
         z: z * 200,
-        radius: 10
+        radius: 10,
+        gate: gate
       })
       gatePillars.push({
         x: x * 200 + 40,
         z: z * 200,
-        radius: 10
+        radius: 10,
+        gate: gate
       })
 
       // door shadow
@@ -339,6 +343,7 @@
 
       if (dist < pillar.radius + SONIC_RADIUS) {
         // collision!
+        blinkGate(pillar)
         pinballFx.currentTime = 0
         pinballFx.play()
 
@@ -367,11 +372,29 @@
     return false
   }
 
+  const gatesToReset = []
+  function blinkGate (pillar) {
+    pillar.gate.forEach(quarterGate => {
+      quarterGate.color = 'white'
+    })
+    gatesToReset.push(pillar.gate)
+  }
+  function resetGates () {
+    while (gatesToReset.length) {
+      const gate = gatesToReset.pop()
+      gate.forEach(quarterGate => {
+        quarterGate.color = GATE_COLOR
+      })
+    }
+  }
+
   let lastTs = Date.now()
   function animate () {
     const now = Date.now()
     const deltaFactor = Math.min((now - lastTs)/16, 2)
     lastTs = now
+
+    resetGates()
 
     const oldX = sonic.translate.x
     const oldZ = sonic.translate.z
