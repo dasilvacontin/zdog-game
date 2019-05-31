@@ -318,13 +318,13 @@
 
 
   const FACTOR = 2
-  const SPEED = 1 * FACTOR
+  const SPEED = 1 / 7 * FACTOR
   const ROTATE_SPEED = 0.03 * FACTOR
 
   const SONIC_RADIUS = 20
-  let sonicPushbackSpeedX = 0
-  let sonicPushbackSpeedZ = 0
-  const COLLISION_SPEED = 5
+  let sonicSpeedX = 0
+  let sonicSpeedZ = 0
+  const COLLISION_SPEED = 7
   function getCollisionPoint () {
     for (let i = 0; i < gatePillars.length; ++i) {
       const pillar = gatePillars[i]
@@ -351,8 +351,8 @@
         direction.x /= dist
         direction.z /= dist
 
-        sonicPushbackSpeedX += direction.x * COLLISION_SPEED
-        sonicPushbackSpeedZ += direction.z * COLLISION_SPEED
+        sonicSpeedX += direction.x * COLLISION_SPEED
+        sonicSpeedZ += direction.z * COLLISION_SPEED
 
         direction.x *= pillar.radius + SONIC_RADIUS
         direction.z *= pillar.radius + SONIC_RADIUS
@@ -374,33 +374,49 @@
     lastTs = now
 
     const oldX = sonic.translate.x
+    const oldZ = sonic.translate.z
+    const movementVector = { x: 0, z: 0 }
     if (isKeyDown(keyCodes.RIGHT_ARROW)) {
-      sonic.translate.x += SPEED * deltaFactor
+      // sonicSpeedX += SPEED * deltaFactor
+      movementVector.x += 1
       sonicBody.rotate.z += ROTATE_SPEED * deltaFactor
       // sonic.rotate.z += ROTATE_SPEED
     }
     if (isKeyDown(keyCodes.LEFT_ARROW)) {
-      sonic.translate.x -= SPEED * deltaFactor
+      // sonicSpeedX -= SPEED * deltaFactor
+      movementVector.x -= 1
       sonicBody.rotate.z -= ROTATE_SPEED * deltaFactor
       // sonic.rotate.z -= ROTATE_SPEED
     }
 
-    const oldZ = sonic.translate.z
     if (isKeyDown(keyCodes.UP_ARROW)) {
-      sonic.translate.z -= SPEED * deltaFactor
+      movementVector.z -= 1
+      // sonicSpeedZ -= SPEED * deltaFactor
       sonicBody.rotate.x += ROTATE_SPEED * deltaFactor
       // sonic.rotate.x += ROTATE_SPEED
     }
     if (isKeyDown(keyCodes.DOWN_ARROW)) {
-      sonic.translate.z += SPEED * deltaFactor
+      movementVector.z += 1
+      // sonicSpeedZ += SPEED * deltaFactor
       sonicBody.rotate.x -= ROTATE_SPEED * deltaFactor
       // sonic.rotate.x -= ROTATE_SPEED
     }
 
-    sonicPushbackSpeedX *= 0.9
-    sonicPushbackSpeedZ *= 0.9
-    sonic.translate.x += sonicPushbackSpeedX
-    sonic.translate.z += sonicPushbackSpeedZ
+    const movementVectorMagnitude = Math.sqrt(
+      Math.pow(movementVector.x, 2) + Math.pow(movementVector.z, 2)
+    )
+    if (movementVectorMagnitude !== 0) {
+      movementVector.x *= SPEED * deltaFactor / movementVectorMagnitude
+      movementVector.z *= SPEED * deltaFactor / movementVectorMagnitude
+
+      sonicSpeedX += movementVector.x
+      sonicSpeedZ += movementVector.z
+    }
+
+    sonicSpeedX *= 0.92
+    sonicSpeedZ *= 0.92
+    sonic.translate.x += sonicSpeedX
+    sonic.translate.z += sonicSpeedZ
 
     if (oldX !== sonic.translate.x || oldZ !== sonic.translate.z) {
       // it moved, maybe it collided
