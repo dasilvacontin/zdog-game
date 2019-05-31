@@ -458,8 +458,9 @@
     grassPatches.forEach(grassPatch => {
       grassPatch.timer += Math.random() / 50 * deltaFactor
       const angle = grassPatch.timer % Math.PI*2
+      const rotZ = Math.cos(angle) * Zdog.TAU / 16
       grassPatch.individuals.forEach(individual => {
-        individual.rotate.z = Math.cos(angle) * Zdog.TAU / 16
+        individual.rotate.z = rotZ
       })
     })
 
